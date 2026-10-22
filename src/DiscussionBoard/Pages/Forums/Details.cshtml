@@ -1,0 +1,19 @@
+﻿@page "/Forum{id:int}"
+
+@model DiscussionBoard.Pages.Forums.Details
+
+<h1>@Model.Forum.Name</h1>
+<p>@Model.Forum.Description</p>
+
+<h2>Discussions</h2>
+
+<a asp-page="/Discussions/Create"
+   asp-route-forumId="@Model.Forum.Id"
+   class="btn btn-primary mb-3">
+    Create Discussion
+</a>
+
+@foreach (var thread in Model.Threads)
+{
+    <partial name="_ThreadCard" model="thread" />
+}

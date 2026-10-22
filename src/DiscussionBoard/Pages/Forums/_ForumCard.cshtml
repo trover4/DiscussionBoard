@@ -4,4 +4,10 @@
         <h2 class="h5"><a asp-page="/Forums/Details" asp-route-id="@Model.Id">@Model.Name</a></h2>
         <p>@Model.Description</p>
     </div>
+
+    <a asp-page="/Forums/Details"
+       asp-route-id="@Model.Id"
+       class="btn btn-primary">
+        View Discussions
+    </a>
 </article>
