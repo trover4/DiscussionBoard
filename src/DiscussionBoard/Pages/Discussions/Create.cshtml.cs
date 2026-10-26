@@ -22,7 +22,7 @@ namespace DiscussionBoard.Pages.Discussions
         public class ThreadInput
         {
             [Required]
-            [StringLength(200)]
+            [MaxLength(200)]
             public string Title { get; set; } = string.Empty;
 
             [Required]

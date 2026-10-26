@@ -1,0 +1,56 @@
+﻿
+@page "/Discussion/{threadId:int}"
+@model DiscussionBoard.Pages.Discussions.Details
+
+@{
+    ViewData["Title"] = Model.Thread.Title;
+}
+
+<h1>@Model.Thread.Title</h1>
+
+<p>@Model.Thread.Content</p>
+
+<hr />
+
+<h2>Replies</h2>
+
+@foreach (var node in Model.PostTree)
+{
+    <partial name="/Pages/Discussions/_PostTree.cshtml"
+             model="node" />
+}
+
+<h3>Add a Reply</h3>
+
+@if (User.Identity?.IsAuthenticated == true)
+{
+    <form method="post" asp-page-handler="Reply">
+        <input type="Hidden"
+               name="Input.ParentPostId"
+               value="" />
+
+        <div asp-validation-summary="ModelOnly"
+             class="text-danger"></div>
+
+        <div class="mb-3">
+            <label asp-for="Input.Content"
+                   class="form-label"></label>
+
+            <textarea asp-for="Input.Content"
+                      class="form-control"
+                      rows="4"></textarea>
+
+            <span asp-validation-for="Input.Content"
+                  class="text-danger"></span>
+        </div>
+
+        <button type="submit" class="btn btn-primary">
+            Post Reply
+        </button>
+    </form>
+}
+else
+{
+    <p>Please sign in to reply.</p>
+}
+

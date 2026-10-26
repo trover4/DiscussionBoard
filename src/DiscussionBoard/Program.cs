@@ -44,6 +44,8 @@ namespace DiscussionBoard
 
             builder.Services.AddScoped<DiscussionThreadService>();
 
+            builder.Services.AddScoped<PostService>();
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.

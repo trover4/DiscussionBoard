@@ -1,6 +1,7 @@
 ﻿using DiscussionBoard.Data;
 using DiscussionBoard.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace DiscussionBoard.Services
 {
@@ -8,6 +9,11 @@ namespace DiscussionBoard.Services
         ApplicationDbContext context,
         ILogger<DiscussionThreadService> logger)
     {
+        public DiscussionThreadService(ApplicationDbContext context)
+            : this(context, NullLogger<DiscussionThreadService>.Instance)
+        {
+        }
+
         //Retrieve a thread by ID
         public async Task<DiscussionThread?> GetAsync(int id)
         {
@@ -22,7 +28,6 @@ namespace DiscussionBoard.Services
             return await context.DiscussionThreads
                 .AsNoTracking()
                 .Where(t => t.ForumId == forumId && !t.IsDeleted)
-                .OrderByDescending(t => t.CreatedAt)
                 .ToListAsync();
         }
 
