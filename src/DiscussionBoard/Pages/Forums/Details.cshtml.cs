@@ -29,7 +29,6 @@ namespace DiscussionBoard.Pages.Forums
             Threads = await context.DiscussionThreads
                 .AsNoTracking()
                 .Where(t => t.ForumId == id && !t.IsDeleted)
-                .OrderByDescending(t => t.CreatedAt)
                 .ToListAsync();
 
             return Page();
