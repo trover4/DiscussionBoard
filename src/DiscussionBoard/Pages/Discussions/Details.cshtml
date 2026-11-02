@@ -1,12 +1,24 @@
 ﻿
 @page "/Discussion/{threadId:int}"
 @model DiscussionBoard.Pages.Discussions.Details
+@using DiscussionBoard.Services
 
 @{
     ViewData["Title"] = Model.Thread.Title;
+    var author = Model.Thread.ApplicationUser;
+    var displayName = string.IsNullOrWhiteSpace(author?.DisplayName)
+        ? "Unconfigured User" : author.DisplayName;
 }
 
 <h1>@Model.Thread.Title</h1>
+
+<div class="d-flex align-items-center mb-3">
+    <img src="@AvatarCatalog.ImagePath(author?.AvatarId)"
+         alt="@displayName's avatar"
+         width="32"
+         height="32" />
+    <span>@displayName</span>
+</div>
 
 <p>@Model.Thread.Content</p>
 

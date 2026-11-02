@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Data.Sqlite;
 
 namespace DiscussionBoard.Pages
 {
@@ -23,7 +25,7 @@ namespace DiscussionBoard.Pages
         }
 
         [BindProperty]
-        public UserProfile Profile { get; set; } = new();
+        public UserProfile Input { get; set; } = new();
 
         [TempData]
         public string? SuccessMessage { get; set; }
@@ -37,7 +39,7 @@ namespace DiscussionBoard.Pages
                 return Challenge();
             }
 
-            Profile = new UserProfile
+            Input = new UserProfile
             {
                 DisplayName = user.DisplayName,
                 AvatarId = user.AvatarId
@@ -53,12 +55,11 @@ namespace DiscussionBoard.Pages
                 return Challenge();
 
             // Normalize the submitted display name.
-            Profile.DisplayName = Profile.DisplayName?.Trim()
-                                  ?? string.Empty;
+            Input.DisplayName = Input.DisplayName?.Trim() ?? string.Empty;
 
             // Validate length after trimming.
-            if (Profile.DisplayName.Length < 2 ||
-                Profile.DisplayName.Length > 60)
+            if (Input.DisplayName.Length < 2 ||
+                Input.DisplayName.Length > 60)
             {
                 ModelState.AddModelError(
                     "Profile.DisplayName",
@@ -66,7 +67,7 @@ namespace DiscussionBoard.Pages
             }
 
             // Validate the selected avatar against the catalog.
-            if (!AvatarCatalog.IsValid(Profile.AvatarId))
+            if (!AvatarCatalog.IsValid(Input.AvatarId))
             {
                 ModelState.AddModelError(
                     "Profile.AvatarId",
@@ -74,12 +75,11 @@ namespace DiscussionBoard.Pages
             }
 
             // Check that no other user has this display name.
-            if (Profile.DisplayName.Length >= 2 &&
-                Profile.DisplayName.Length <= 60)
+            if (Input.DisplayName.Length is >= 2 and <= 60)
             {
                 bool available =
                     await _profileService.IsDisplayNameAvailableAsync(
-                        Profile.DisplayName, user.Id);
+                        Input.DisplayName, user.Id);
 
                 if (!available)
                 {
@@ -93,11 +93,23 @@ namespace DiscussionBoard.Pages
                 return Page();
 
             // Update only the permitted fields.
-            user.DisplayName = Profile.DisplayName;
-            user.AvatarId = Profile.AvatarId;
+            user.DisplayName = Input.DisplayName;
+            user.AvatarId = Input.AvatarId;
 
-            IdentityResult result =
-                await _userManager.UpdateAsync(user);
+            IdentityResult result;
+            try
+            {
+                result = await _userManager.UpdateAsync(user);
+            }
+            catch (DbUpdateException ex) when (
+                ex.InnerException is SqliteException { SqliteErrorCode: 19, SqliteExtendedErrorCode: 2067 })
+            {
+                ModelState.AddModelError(
+                    "Input.DisplayName",
+                    "That display name is already taken.");
+
+                return Page();
+            }
 
             if (!result.Succeeded)
             {

@@ -19,6 +19,7 @@ namespace DiscussionBoard.Services
         {
             return await context.DiscussionThreads
                 .AsNoTracking()
+                .Include(t => t.ApplicationUser)
                 .FirstOrDefaultAsync(t => t.Id == id && !t.IsDeleted);
         }
 

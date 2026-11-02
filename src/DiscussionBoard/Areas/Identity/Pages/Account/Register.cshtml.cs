@@ -20,6 +20,8 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Data.Sqlite;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace DiscussionBoard.Areas.Identity.Pages.Account
@@ -154,7 +156,22 @@ namespace DiscussionBoard.Areas.Identity.Pages.Account
 
                 await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
-                var result = await _userManager.CreateAsync(user, Input.Password);
+                IdentityResult result;
+                try
+                {
+                    result = await _userManager.CreateAsync(user, Input.Password);
+                }
+                catch (DbUpdateException ex) when (
+                    ex.InnerException is SqliteException sqlite &&
+                    sqlite.SqliteErrorCode == 19 &&
+                    sqlite.SqliteExtendedErrorCode == 2067)
+                {
+                    ModelState.AddModelError(
+                        "Input.UserProfile.DisplayName",
+                        "That display name belongs to another user.");
+
+                    return Page();
+                }
 
                 if (result.Succeeded)
                 {

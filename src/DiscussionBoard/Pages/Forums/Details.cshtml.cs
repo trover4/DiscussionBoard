@@ -28,6 +28,7 @@ namespace DiscussionBoard.Pages.Forums
 
             Threads = await context.DiscussionThreads
                 .AsNoTracking()
+                .Include(t => t.ApplicationUser)
                 .Where(t => t.ForumId == id && !t.IsDeleted)
                 .ToListAsync();
 

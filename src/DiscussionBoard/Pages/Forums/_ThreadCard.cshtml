@@ -1,18 +1,34 @@
 ﻿@model DiscussionBoard.Models.DiscussionThread
+@using DiscussionBoard.Services
 
-<div class="card mb-3">
+@{
+    var author = Model.ApplicationUser;
+    var displayName = string.IsNullOrWhiteSpace(author?.DisplayName)
+    ? "Unconfigured User" : author.DisplayName;
+}
+
+<article class="card mb-3">
     <div class="card-body">
-        <h5 class="card-title">@Model.Title</h5>
+        <h5 class="card-title">
+            <a asp-page="/Discussions/Details"
+               asp-route-threadId="@Model.Id">@Model.Title</a>
+        </h5>
 
         <p class="card-text">
             @Model.Content
         </p>
 
+        <img src="@AvatarCatalog.ImagePath(author?.AvatarId)"
+             alt="@displayName's avatar"
+             width="32"
+             height="32" />
+        <span>@displayName</span>
+
         <small class="text-muted">
             Created: @Model.CreatedAt.ToLocalTime()
         </small>
     </div>
-</div>
+</article>
 
 <a asp-page="/Discussions/Details"
    asp-route-threadId="@Model.Id"

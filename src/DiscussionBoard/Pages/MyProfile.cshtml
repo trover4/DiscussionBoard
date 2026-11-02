@@ -20,18 +20,18 @@
          class="text-danger"></div>
 
     <div class="mb-3">
-        <label asp-for="Profile.DisplayName" class="form-label">Display Name</label>
+        <label asp-for="Input.DisplayName" class="form-label">Display Name</label>
 
-        <input asp-for="Profile.DisplayName" class="form-control"/>
+        <input asp-for="Input.DisplayName" class="form-control"/>
 
-        <span asp-validation-for="Profile.DisplayName" class="text-danger"></span>
+        <span asp-validation-for="Input.DisplayName" class="text-danger"></span>
     </div>
 
     <fieldset class="mb-3">
         <legend>Choose and Avatar</legend>
 
         <p>Current Avatar</p>
-        <img src="@AvatarCatalog.ImagePath(Model.Profile.AvatarId)"
+        <img src="@AvatarCatalog.ImagePath(Model.Input.AvatarId)"
              alt="Current Avatar"
              width="80"
              height="80"/>
@@ -48,7 +48,7 @@
                              class="d-block mb-2"/>
 
                         <input type="radio"
-                               asp-for="Profile.AvatarId"
+                               asp-for="Input.AvatarId"
                                value="@avatar.Id"/>
 
                         @avatar.DisplayName
@@ -57,7 +57,7 @@
             }
         </div>
 
-        <span asp-validation-for="Profile.AvatarId"
+        <span asp-validation-for="Input.AvatarId"
               class="text-danger"></span>
     </fieldset>
 

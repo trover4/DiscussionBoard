@@ -16,6 +16,15 @@ namespace DiscussionBoard.Data
         {
             base.OnModelCreating(builder);
 
+            builder.Entity<ApplicationUser>()
+                .Property(u => u.DisplayName)
+                .UseCollation("NOCASE");
+
+            builder.Entity<ApplicationUser>()
+                .HasIndex(u => u.DisplayName)
+                .IsUnique()
+                .HasFilter("DisplayName <> ''");
+
             builder.Entity<DiscussionThread>()
                 .HasOne(dt => dt.Forum)
                 .WithMany(f => f.DiscussionThreads)
