@@ -1,3 +1,4 @@
+using DiscussionBoard.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using DiscussionBoard.Data;
@@ -10,7 +11,7 @@ namespace DiscussionBoard
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
@@ -36,6 +37,7 @@ namespace DiscussionBoard
 
             builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
                     options.SignIn.RequireConfirmedAccount = !builder.Environment.IsDevelopment())
+                .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
             builder.Services.AddRazorPages(options =>
@@ -81,6 +83,19 @@ namespace DiscussionBoard
 
             app.MapRazorPages()
                 .WithStaticAssets();
+
+            if (args.Contains("--bootstrap-admin", StringComparer.Ordinal))
+            {
+                if (!app.Environment.IsDevelopment())
+                {
+                    throw new InvalidOperationException("This bootstrap tool is Development-only.");
+                }
+                await AdminBootstrapper.BootstrapAsync(
+                    app.Services,
+                    app.Configuration["BootstrapAdmin:Email"]
+                );
+                return;
+            }
 
             app.Run();
         }
