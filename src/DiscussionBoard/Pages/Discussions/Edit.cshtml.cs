@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
+using DiscussionBoard.Authorization;
 using DiscussionBoard.Models;
 using DiscussionBoard.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -9,22 +10,14 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 namespace DiscussionBoard.Pages.Discussions
 {
     [Authorize]
-    public class Edit(DiscussionThreadService threadService) : PageModel
+    public class ThreadEditModel(
+        DiscussionThreadService threadService,
+        IApplicationAuthorizationService authorizationService) : PageModel
     {
         [BindProperty]
-        public ThreadInput Input { get; set; } = new();
+        public DiscussionEditViewModel Input { get; set; } = new();
 
         public int ThreadId { get; set; }
-
-        public class ThreadInput
-        {
-            [Required]
-            [MaxLength(200)]
-            public string Title { get; set; } = string.Empty;
-
-            [Required]
-            public string Content { get; set; } = string.Empty;
-        }
 
         public async Task<IActionResult> OnGetAsync(int id)
         {
@@ -35,16 +28,14 @@ namespace DiscussionBoard.Pages.Discussions
                 return NotFound();
             }
 
-            string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-            if (thread.ApplicationUserId != userId)
+            if (!await authorizationService.CanEditAsync(User, thread))
             {
                 return Forbid();
             }
 
             ThreadId = thread.Id;
 
-            Input = new ThreadInput
+            Input = new DiscussionEditViewModel
             {
                 Title = thread.Title,
                 Content = thread.Content
@@ -55,12 +46,6 @@ namespace DiscussionBoard.Pages.Discussions
 
         public async Task<IActionResult> OnPostAsync(int id)
         {
-            if (!ModelState.IsValid)
-            {
-                ThreadId = id;
-                return Page();
-            }
-
             var existingThread = await threadService.GetAsync(id);
 
             if (existingThread is null)
@@ -68,11 +53,16 @@ namespace DiscussionBoard.Pages.Discussions
                 return NotFound();
             }
 
-            string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-            if (existingThread.ApplicationUserId != userId)
+            if (!await authorizationService.CanEditAsync(User, existingThread))
             {
                 return Forbid();
+            }
+
+            ThreadId = id;
+
+            if (!ModelState.IsValid)
+            {
+                return Page();
             }
 
             var updatedThread = new DiscussionThread

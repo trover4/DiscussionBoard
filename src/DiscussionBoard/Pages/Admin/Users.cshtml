@@ -1,0 +1,54 @@
+﻿@page
+@model DiscussionBoard.Pages.Admin.UsersModel
+
+<h1>Manage Users</h1>
+
+<div asp-validation-summary="All" class="text-danger"></div>
+
+<form method="post" asp-page-handler="Select">
+    <div class="mb-3">
+        <label asp-for="SelectedUserId" class="form-label">
+            Select User
+        </label>
+
+        <select asp-for="SelectedUserId"
+                asp-items="Model.UserOptions"
+                class="form-select">
+            <option value="">-- Select User --</option>
+        </select>
+
+        <span asp-validation-for="SelectedUserId"
+              class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Select User</button>
+</form>
+
+@if (Model.SelectedUser is not null)
+{
+    <div class="mt-3">
+        <h3>Selected User</h3>
+
+        <p>
+            Selected: @Model.SelectedUser.DisplayName
+            (@Model.SelectedUser.Email)
+        </p>
+
+        <form method="post" asp-page-handler="UpdateRole">
+            <input type="hidden" asp-for="SelectedUserId" />
+
+            @if (Model.SelectedUserIsAdmin)
+            {
+                <button type="submit" class="btn btn-danger">
+                    Remove Admin
+                </button>
+            }
+            else
+            {
+                <button type="submit" class="btn btn-primary">
+                    Add Admin
+                </button>
+            }
+        </form>
+    </div>
+}

@@ -41,6 +41,7 @@ namespace DiscussionBoard.Tests.DatabaseAndUI
                 await db.Database.EnsureCreatedAsync(TestContext.Current.CancellationToken);
 
                 var user = new ApplicationUser { Id = Guid.NewGuid().ToString(), UserName = "nested-test" };
+                client.DefaultRequestHeaders.Add(TestUserAuthenticationHandler.UserHeader, user.Id);
                 var forum = new Forum { Name = "Hierarchy test forum" };
                 db.Users.Add(user);
                 db.Forums.Add(forum);

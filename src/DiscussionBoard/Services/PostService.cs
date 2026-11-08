@@ -22,5 +22,30 @@ namespace DiscussionBoard.Services
             await context.SaveChangesAsync();
             return post;
         }
+
+        public async Task<Post?> GetAsync(int id)
+        {
+            return await context.Posts
+                .AsNoTracking()
+                .FirstOrDefaultAsync(p => p.Id == id && !p.IsDeleted);
+        }
+
+        public async Task<bool> UpdateAsync(Post post)
+        {
+            var existingPost = await context.Posts
+                .FirstOrDefaultAsync(p => p.Id == post.Id && !p.IsDeleted);
+
+            if (existingPost is null)
+            {
+                return false;
+            }
+
+            existingPost.Title = post.Title;
+            existingPost.Content = post.Content;
+
+            await context.SaveChangesAsync();
+
+            return true;
+        }
     }
 }

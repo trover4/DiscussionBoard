@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using DiscussionBoard.Data;
 using DiscussionBoard.Models;
 using DiscussionBoard.Services;
+using Microsoft.AspNetCore.Authorization;
 using Serilog;
 using Serilog.Formatting.Compact;
 
@@ -57,6 +58,16 @@ namespace DiscussionBoard
 
             builder.Services.AddScoped<IUserProfileService, UserProfileService>();
 
+            builder.Services.AddScoped<IApplicationAuthorizationService, ApplicationAuthorizationService>();
+
+            builder.Services.AddAuthorizationBuilder()
+                            .AddPolicy(ApplicationAuthorizationPolicies.IsOwnerOrAdmin, policy =>
+                {
+                    policy.Requirements.Add(new IsOwnerOrAdminRequirement());
+                });
+
+            builder.Services.AddSingleton<IAuthorizationHandler, IsOwnerOrAdminHandler>();
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -83,19 +94,6 @@ namespace DiscussionBoard
 
             app.MapRazorPages()
                 .WithStaticAssets();
-
-            if (args.Contains("--bootstrap-admin", StringComparer.Ordinal))
-            {
-                if (!app.Environment.IsDevelopment())
-                {
-                    throw new InvalidOperationException("This bootstrap tool is Development-only.");
-                }
-                await AdminBootstrapper.BootstrapAsync(
-                    app.Services,
-                    app.Configuration["BootstrapAdmin:Email"]
-                );
-                return;
-            }
 
             app.Run();
         }
