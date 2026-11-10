@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 namespace DiscussionBoard.Models
 {
     /// <summary>
-    ///
+    /// Represents the timestamp, level, message, and exception data in a Serilog JSON event.
     /// </summary>
     public class LogEntry
     {

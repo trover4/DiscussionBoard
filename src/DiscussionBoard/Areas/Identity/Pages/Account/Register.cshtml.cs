@@ -161,6 +161,7 @@ namespace DiscussionBoard.Areas.Identity.Pages.Account
                 {
                     result = await _userManager.CreateAsync(user, Input.Password);
                 }
+                // A unique-index violation can still occur if another registration claims the display name first.
                 catch (DbUpdateException ex) when (
                     ex.InnerException is SqliteException sqlite &&
                     sqlite.SqliteErrorCode == 19 &&

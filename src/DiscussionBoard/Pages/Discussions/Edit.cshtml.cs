@@ -19,6 +19,11 @@ namespace DiscussionBoard.Pages.Discussions
 
         public int ThreadId { get; set; }
 
+        /// <summary>
+        /// Loads an existing thread into the edit form.
+        /// </summary>
+        /// <param name="id">The ID of the thread to edit.</param>
+        /// <returns>The edit page, NotFound for a missing thread, or Forbid when access is denied.</returns>
         public async Task<IActionResult> OnGetAsync(int id)
         {
             var thread = await threadService.GetAsync(id);
@@ -44,8 +49,14 @@ namespace DiscussionBoard.Pages.Discussions
             return Page();
         }
 
+        /// <summary>
+        /// Checks authorization again and saves changes to a thread.
+        /// </summary>
+        /// <param name="id">The ID of the thread to update.</param>
+        /// <returns>A redirect after saving, the form with validation errors, or an error response.</returns>
         public async Task<IActionResult> OnPostAsync(int id)
         {
+            // Recheck the existing record and authorization on POST.
             var existingThread = await threadService.GetAsync(id);
 
             if (existingThread is null)

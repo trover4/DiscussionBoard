@@ -18,6 +18,12 @@ namespace DiscussionBoard.Pages.Discussions
         public int ThreadId { get; set; }
         public int PostId { get; set; }
 
+        /// <summary>
+        /// Loads a post for editing after verifying its thread and the current user's permission.
+        /// </summary>
+        /// <param name="threadId">The expected parent discussion ID.</param>
+        /// <param name="postId">The post to edit.</param>
+        /// <returns>The edit form, NotFound for a mismatch, or Forbid for unauthorized access.</returns>
         public async Task<IActionResult> OnGetAsync(int threadId, int postId)
         {
             var post = await postService.GetAsync(postId);
@@ -44,6 +50,12 @@ namespace DiscussionBoard.Pages.Discussions
             return Page();
         }
 
+        /// <summary>
+        /// Revalidates post ownership and saves the edited title and content.
+        /// </summary>
+        /// <param name="threadId">The expected parent discussion ID.</param>
+        /// <param name="postId">The post to update.</param>
+        /// <returns>A redirect to the discussion, the form with validation errors, or an error response.</returns>
         public async Task<IActionResult> OnPostAsync(int threadId, int postId)
         {
             var post = await postService.GetAsync(postId);

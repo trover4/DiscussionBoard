@@ -15,6 +15,11 @@ namespace DiscussionBoard.Pages.Admin
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IApplicationAuthorizationService _authorizationService;
 
+        /// <summary>
+        /// Sets up the administrator page for looking up users and changing their roles.
+        /// </summary>
+        /// <param name="userManager">Provides account lookup and role membership information.</param>
+        /// <param name="authorizationService">Performs validated administrator role changes.</param>
         public UsersModel(UserManager<ApplicationUser> userManager,
             IApplicationAuthorizationService authorizationService)
         {
@@ -31,11 +36,18 @@ namespace DiscussionBoard.Pages.Admin
 
         public bool SelectedUserIsAdmin { get; set; }
 
+        /// <summary>
+        /// Populates the dropdown selection when the administration page opens.
+        /// </summary>
         public async Task OnGetAsync()
         {
             await LoadUsersAsync();
         }
 
+        /// <summary>
+        /// Loads the selected account and whether it currently has administrator access.
+        /// </summary>
+        /// <returns>The page with the selected user, or the page with a selection error.</returns>
         public async Task<IActionResult> OnPostSelectAsync()
         {
             await LoadUsersAsync();
@@ -62,6 +74,9 @@ namespace DiscussionBoard.Pages.Admin
             return Page();
         }
 
+        /// <summary>
+        /// Builds the dropdown options from the accounts in the Identity database.
+        /// </summary>
         private async Task LoadUsersAsync()
         {
             var users = await _userManager.Users.ToListAsync();
@@ -78,6 +93,10 @@ namespace DiscussionBoard.Pages.Admin
             }
         }
 
+        /// <summary>
+        /// Adds or removes the Admin role for the selected account through the authorization service.
+        /// </summary>
+        /// <returns>A redirect when successful, or an error page.</returns>
         public async Task<IActionResult> OnPostUpdateRoleAsync()
         {
             await LoadUsersAsync();
@@ -101,6 +120,7 @@ namespace DiscussionBoard.Pages.Admin
 
             IdentityResult result;
 
+            // Toggles membership based on the selected user's current role.
             if (SelectedUserIsAdmin)
             {
                 result = await _authorizationService.RemoveRoleAsync(
@@ -125,6 +145,10 @@ namespace DiscussionBoard.Pages.Admin
             return RedirectToPage();
         }
 
+        /// <summary>
+        /// Handles adding roles for the selected account.
+        /// </summary>
+        /// <returns>A redirect back to the administration page.</returns>
         public async Task<IActionResult> OnPostAddAsync()
         {
             if (!string.IsNullOrWhiteSpace(SelectedUserId))
@@ -136,6 +160,10 @@ namespace DiscussionBoard.Pages.Admin
             return RedirectToPage();
         }
 
+        /// <summary>
+        /// Handles removing roles for the selected account.
+        /// </summary>
+        /// <returns>A redirect back to the administration page.</returns>
         public async Task<IActionResult> OnPostRemoveAsync()
         {
             if (!string.IsNullOrWhiteSpace(SelectedUserId))

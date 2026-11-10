@@ -13,6 +13,11 @@ namespace DiscussionBoard.Pages.Forums
 
         public List<DiscussionThread> Threads { get; set; } = [];
 
+        /// <summary>
+        /// Loads the requested forum and its discussion threads.
+        /// </summary>
+        /// <param name="id">The forum ID from the request.</param>
+        /// <returns>The forum page, or NotFound when the forum is missing or deleted.</returns>
         public async Task<IActionResult> OnGetAsync(int id)
         {
             var forum = await context.Forums

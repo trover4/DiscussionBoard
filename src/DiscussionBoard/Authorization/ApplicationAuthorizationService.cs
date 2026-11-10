@@ -10,6 +10,11 @@ namespace DiscussionBoard.Authorization
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IAuthorizationService _authorizationService;
 
+        /// <summary>
+        /// Creates the authorization service used for role changes and ownership checks.
+        /// </summary>
+        /// <param name="userManager">Access to Identity user and role membership data.</param>
+        /// <param name="authorizationService">Evaluates resource-based authorization policies.</param>
         public ApplicationAuthorizationService(UserManager<ApplicationUser> userManager,
             IAuthorizationService authorizationService)
         {
@@ -17,6 +22,13 @@ namespace DiscussionBoard.Authorization
             _authorizationService = authorizationService;
         }
 
+        /// <summary>
+        /// Assigns the administrator role to the selected user after validating the acting administrator.
+        /// </summary>
+        /// <param name="actingUser">The user requesting the role change.</param>
+        /// <param name="targetUserId">The ID of the account to update.</param>
+        /// <param name="roleName">The role to assign; only Admin is permitted.</param>
+        /// <returns>The Identity operation result, including validation errors when the request is rejected.</returns>
         public async Task<IdentityResult> AddRoleAsync(
             ClaimsPrincipal actingUser, string targetUserId, string roleName)
         {
@@ -60,6 +72,13 @@ namespace DiscussionBoard.Authorization
             return await _userManager.AddToRoleAsync(user, roleName);
         }
 
+        /// <summary>
+        /// Removes administrator access while preventing self-removal and removal of the final administrator.
+        /// </summary>
+        /// <param name="actingUser">The user requesting the role change.</param>
+        /// <param name="targetUserId">The ID of the account to update.</param>
+        /// <param name="roleName">The role to remove; only Admin is permitted.</param>
+        /// <returns>The Identity operation result, including an explanation if removal is not allowed.</returns>
         public async Task<IdentityResult> RemoveRoleAsync(
             ClaimsPrincipal actingUser, string targetUserId, string roleName)
         {
@@ -109,6 +128,7 @@ namespace DiscussionBoard.Authorization
                 });
             }
 
+            // Keep at least one administrator account so the application cannot be locked out of role management.
             var admins = await _userManager.GetUsersInRoleAsync(ApplicationRoles.Admin);
 
             if (admins.Count <= 1)
@@ -122,6 +142,12 @@ namespace DiscussionBoard.Authorization
             return await _userManager.RemoveFromRoleAsync(user, roleName);
         }
 
+        /// <summary>
+        /// Checks whether the current user can edit the supplied discussion thread or post.
+        /// </summary>
+        /// <param name="principal">The user attempting the edit.</param>
+        /// <param name="resource">The discussion item being edited.</param>
+        /// <returns>True when the owner-or-administrator policy succeeds; otherwise false.</returns>
         public async Task<bool> CanEditAsync(
             ClaimsPrincipal principal, DiscussionBase resource)
         {
@@ -133,6 +159,12 @@ namespace DiscussionBoard.Authorization
             return result.Succeeded;
         }
 
+        /// <summary>
+        /// Helper method for the initial authentication, administrator-role, and allowed-role checks.
+        /// </summary>
+        /// <param name="actingUser">The user requesting the change.</param>
+        /// <param name="roleName">The role being modified.</param>
+        /// <returns>True only for an authenticated administrator changing the Admin role.</returns>
         private bool IsValidAdmin(ClaimsPrincipal actingUser, string roleName)
         {
             return actingUser.Identity?.IsAuthenticated == true

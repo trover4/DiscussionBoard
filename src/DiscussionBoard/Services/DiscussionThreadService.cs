@@ -9,12 +9,20 @@ namespace DiscussionBoard.Services
         ApplicationDbContext context,
         ILogger<DiscussionThreadService> logger)
     {
+        /// <summary>
+        /// Creates the thread service with a no-op logger that provides a database context.
+        /// </summary>
+        /// <param name="context">The database context used for thread operations.</param>
         public DiscussionThreadService(ApplicationDbContext context)
             : this(context, NullLogger<DiscussionThreadService>.Instance)
         {
         }
 
-        //Retrieve a thread by ID
+        /// <summary>
+        /// Finds a non-deleted thread and its author.
+        /// </summary>
+        /// <param name="id">The thread to retrieve.</param>
+        /// <returns>The matching thread, or null if none is available.</returns>
         public async Task<DiscussionThread?> GetAsync(int id)
         {
             return await context.DiscussionThreads
@@ -23,7 +31,11 @@ namespace DiscussionBoard.Services
                 .FirstOrDefaultAsync(t => t.Id == id && !t.IsDeleted);
         }
 
-        //Retrieve all threads in a forum
+        /// <summary>
+        /// Retrieves all active threads belonging to the requested forum.
+        /// </summary>
+        /// <param name="forumId">The forum whose threads should be returned.</param>
+        /// <returns>A list of non-deleted threads; empty when none match.</returns>
         public async Task<List<DiscussionThread>> GetForForumAsync(int forumId)
         {
             return await context.DiscussionThreads
@@ -32,7 +44,11 @@ namespace DiscussionBoard.Services
                 .ToListAsync();
         }
 
-        //Add a new thread
+        /// <summary>
+        /// Adds a new discussion thread and saves it to the database.
+        /// </summary>
+        /// <param name="thread">The populated thread to create.</param>
+        /// <returns>The created thread after saving.</returns>
         public async Task<DiscussionThread> AddAsync(DiscussionThread thread)
         {
             try
@@ -49,7 +65,11 @@ namespace DiscussionBoard.Services
             }
         }
 
-        //Update a thread
+        /// <summary>
+        /// Updates the fields of an existing, non-deleted thread.
+        /// </summary>
+        /// <param name="thread">Contains the thread ID and replacement title and content.</param>
+        /// <returns>True when the thread was updated; false if it was not found.</returns>
         public async Task<bool> UpdateAsync(DiscussionThread thread)
         {
             try
@@ -62,6 +82,7 @@ namespace DiscussionBoard.Services
                     return false;
                 }
 
+                // Copy only editable fields; preserve the original author, forum, and creation timestamp.
                 existingThread.Title = thread.Title;
                 existingThread.Content = thread.Content;
 

@@ -27,11 +27,21 @@ namespace DiscussionBoard.Pages.Discussions
             public int? ParentPostId { get; set; }
         }
 
+        /// <summary>
+        /// Loads the requested discussion and replies.
+        /// </summary>
+        /// <param name="threadId">The ID of the discussion to display.</param>
+        /// <returns>The discussion page, or NotFound if the thread does not exist.</returns>
         public async Task<IActionResult> OnGetAsync(int threadId)
         {
             return await LoadThreadAsync(threadId);
         }
 
+        /// <summary>
+        /// Validates and saves a reply to a thread or post.
+        /// </summary>
+        /// <param name="threadId">The thread receiving the reply.</param>
+        /// <returns>A redirect after saving, or a challenge, validation page, or error response.</returns>
         public async Task<IActionResult> OnPostReplyAsync(int threadId)
         {
             if (User.Identity?.IsAuthenticated != true)
@@ -51,6 +61,7 @@ namespace DiscussionBoard.Pages.Discussions
                 return NotFound();
             }
 
+            // Reject parent-post IDs from other threads before allowing a nested reply.
             if (Input.ParentPostId is int parentId)
             {
                 var posts = await postService.GetForThreadAsync(threadId);
@@ -84,6 +95,11 @@ namespace DiscussionBoard.Pages.Discussions
             return RedirectToPage(new { threadId });
         }
 
+        /// <summary>
+        /// Loads thread details and builds the reply tree used by the Razor page.
+        /// </summary>
+        /// <param name="threadId">The thread to load.</param>
+        /// <returns>The rendered page, or NotFound when the thread is missing.</returns>
         private async Task<IActionResult> LoadThreadAsync(int threadId)
         {
             var thread = await threadService.GetAsync(threadId);

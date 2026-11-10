@@ -29,6 +29,10 @@ namespace DiscussionBoard.Pages.Discussions
             public string Content { get; set; } = string.Empty;
         }
 
+        /// <summary>
+        /// Displays the thread creation form only if the requested forum exists and is active.
+        /// </summary>
+        /// <returns>The form page, or NotFound for an invalid or deleted forum.</returns>
         public async Task<IActionResult> OnGetAsync()
         {
             var forum = await context.Forums.FindAsync(ForumId);
@@ -41,6 +45,10 @@ namespace DiscussionBoard.Pages.Discussions
             return Page();
         }
 
+        /// <summary>
+        /// Validates a new thread, associates it with the author, and saves it.
+        /// </summary>
+        /// <returns>A redirect to the forum, the form with validation errors, or an appropriate error response.</returns>
         public async Task<IActionResult> OnPostAsync()
         {
             if (!ModelState.IsValid)
@@ -55,6 +63,7 @@ namespace DiscussionBoard.Pages.Discussions
                 return NotFound();
             }
 
+            // Take the author ID from the authenticated identity, never from the submitted form.
             string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             if (userId is null)

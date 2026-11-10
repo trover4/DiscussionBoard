@@ -2,6 +2,9 @@
 
 namespace DiscussionBoard.Models
 {
+    /// <summary>
+    /// Holds validated title and content fields submitted when editing a thread or post.
+    /// </summary>
     public class DiscussionEditViewModel
     {
         [Required]

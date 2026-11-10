@@ -60,12 +60,14 @@ namespace DiscussionBoard
 
             builder.Services.AddScoped<IApplicationAuthorizationService, ApplicationAuthorizationService>();
 
+            // Use the resource-based policy to authorize edits to threads and individual posts.
             builder.Services.AddAuthorizationBuilder()
                             .AddPolicy(ApplicationAuthorizationPolicies.IsOwnerOrAdmin, policy =>
                 {
                     policy.Requirements.Add(new IsOwnerOrAdminRequirement());
                 });
 
+            // The handler handles the policy by checking administrator status and author ownership.
             builder.Services.AddSingleton<IAuthorizationHandler, IsOwnerOrAdminHandler>();
 
             var app = builder.Build();
