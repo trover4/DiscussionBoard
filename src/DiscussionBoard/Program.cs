@@ -85,6 +85,12 @@ namespace DiscussionBoard
                 app.UseHsts();
             }
 
+            app.Use(async (HttpContext context, RequestDelegate next) =>
+            {
+                context.Response.Headers.XFrameOptions = "DENY";
+                await next(context);
+            });
+
             app.UseHttpsRedirection();
 
             app.UseRouting();
