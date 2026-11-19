@@ -12,7 +12,8 @@ namespace DiscussionBoard.Pages.Discussions
     [Authorize]
     public class ThreadEditModel(
         DiscussionThreadService threadService,
-        IApplicationAuthorizationService authorizationService) : PageModel
+        IApplicationAuthorizationService authorizationService,
+        ILogger<ThreadEditModel> logger) : PageModel
     {
         [BindProperty]
         public DiscussionEditViewModel Input { get; set; } = new();
@@ -66,6 +67,10 @@ namespace DiscussionBoard.Pages.Discussions
 
             if (!await authorizationService.CanEditAsync(User, existingThread))
             {
+                logger.LogWarning("Discussion thread {threadId} edit is forbidden: {Outcome}",
+                    id,
+                    "Unauthorized");
+
                 return Forbid();
             }
 
@@ -89,6 +94,8 @@ namespace DiscussionBoard.Pages.Discussions
             {
                 return NotFound();
             }
+
+            logger.LogInformation("Thread {threadId} updated", updatedThread.Id);
 
             return RedirectToPage("/Forums/Details", new { id = existingThread.ForumId });
         }

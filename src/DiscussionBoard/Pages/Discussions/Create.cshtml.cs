@@ -11,7 +11,8 @@ namespace DiscussionBoard.Pages.Discussions
 {
     [Authorize]
     public class Create(DiscussionThreadService threadService,
-        ApplicationDbContext context) : PageModel
+        ApplicationDbContext context,
+        ILogger<Create> logger) : PageModel
     {
         [BindProperty]
         public ThreadInput Input { get; set; } = new();
@@ -81,6 +82,10 @@ namespace DiscussionBoard.Pages.Discussions
             };
 
             await threadService.AddAsync(thread);
+
+            logger.LogInformation("Discussion thread {threadId} created in forum {forumId}",
+                thread.Id,
+                forum.Id);
 
             return RedirectToPage("/Forums/Details", new {id = ForumId});
         }
