@@ -83,7 +83,7 @@ namespace DiscussionBoard.Pages.Discussions
 
             await threadService.AddAsync(thread);
 
-            logger.LogInformation("Discussion thread {threadId} created in forum {forumId}",
+            logger.LogInformation("Discussion thread {ThreadId} created in forum {ForumId}",
                 thread.Id,
                 forum.Id);
 

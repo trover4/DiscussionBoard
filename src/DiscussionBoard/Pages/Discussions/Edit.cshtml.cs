@@ -67,7 +67,7 @@ namespace DiscussionBoard.Pages.Discussions
 
             if (!await authorizationService.CanEditAsync(User, existingThread))
             {
-                logger.LogWarning("Discussion thread {threadId} edit is forbidden: {Outcome}",
+                logger.LogWarning("Discussion thread {ThreadId} edit is forbidden: {Outcome}",
                     id,
                     "Unauthorized");
 
@@ -95,7 +95,8 @@ namespace DiscussionBoard.Pages.Discussions
                 return NotFound();
             }
 
-            logger.LogInformation("Thread {threadId} updated", updatedThread.Id);
+            logger.LogInformation("Thread {ThreadId} updated",
+                updatedThread.Id);
 
             return RedirectToPage("/Forums/Details", new { id = existingThread.ForumId });
         }

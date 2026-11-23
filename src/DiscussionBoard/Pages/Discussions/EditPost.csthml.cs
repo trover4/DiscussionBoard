@@ -10,7 +10,8 @@ namespace DiscussionBoard.Pages.Discussions
     [Authorize]
     public class EditPostModel(
         PostService postService,
-        IApplicationAuthorizationService authorizationService) : PageModel
+        IApplicationAuthorizationService authorizationService,
+        ILogger<EditPostModel> logger) : PageModel
     {
         [BindProperty]
         public DiscussionEditViewModel Input { get; set; } = new();
@@ -35,6 +36,10 @@ namespace DiscussionBoard.Pages.Discussions
 
             if (!await authorizationService.CanEditAsync(User, post))
             {
+                logger.LogWarning("Post {PostId} edit is forbidden: {Outcome}",
+                    postId,
+                    "Unauthorized");
+
                 return Forbid();
             }
 
@@ -91,6 +96,10 @@ namespace DiscussionBoard.Pages.Discussions
             {
                 return NotFound();
             }
+
+            logger.LogInformation("Post {PostId} updated in discussion thread {ThreadId}.",
+                postId,
+                threadId);
 
             return RedirectToPage("/Discussions/Details",
                 new { threadId });

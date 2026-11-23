@@ -8,7 +8,8 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 namespace DiscussionBoard.Pages.Discussions
 {
     public class Details(DiscussionThreadService threadService,
-        PostService postService) : PageModel
+        PostService postService,
+        ILogger<Details> logger) : PageModel
     {
         public DiscussionThread Thread { get; set; } = null!;
 
@@ -91,6 +92,10 @@ namespace DiscussionBoard.Pages.Discussions
             };
 
             await postService.AddAsync(post);
+
+            logger.LogInformation("Reply {PostId} created in discussion thread {ThreadId}.",
+                post.Id,
+                threadId);
 
             return RedirectToPage(new { threadId });
         }

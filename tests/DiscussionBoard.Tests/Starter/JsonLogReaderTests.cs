@@ -64,6 +64,14 @@ public sealed class JsonLogReaderTests : IDisposable
     }
 
     [Fact]
+    public void MissingDirectoryReturnsNoEntries()
+    {
+        Assert.False(Directory.Exists(LogDirectory));
+
+        Assert.Empty(CreateReader().Read());
+    }
+
+    [Fact]
     public void ReadsFileWhileAnotherHandleRemainsOpenForWriting()
     {
         string path = WriteFile("discussionboard-20261009.json",

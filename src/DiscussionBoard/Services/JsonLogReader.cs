@@ -26,6 +26,11 @@ namespace DiscussionBoard.Services
             string[] logFiles;
             List<LogEntry> logs = new List<LogEntry>();
 
+            if (!Directory.Exists(_logDirectory))
+            {
+                return logs;
+            }
+
             try
             {
                 logFiles = Directory.GetFiles(_logDirectory, "*.json");
